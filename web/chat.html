@@ -2,9 +2,50 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/style.css" rel="stylesheet">
+    <script src="js/app.js"></script>
     <title>Chatik</title>
 </head>
-<body>
-    <h1>hello in da Chatik</h1>
+<body onload="checkAuth();setInterval(updateChat,1000)">
+    <div class="container chat-container">
+        <div class="row">
+            <div class="col-lg-10 col-md-10 col-xs-9" style="border-right:1px solid lightgray">
+                <div id="chat-box" style="margin-bottom: 15px; height: 400px; max-height: 400px">
+                    <!--
+                    <div class="row">
+                        <div class="col-xs-1">vika</div>
+                        <div class="col-xs-8">privet</div>
+                    </div>
+                    <div class="row">
+                        <div class="col-xs-1">stepa</div>
+                        <div class="col-xs-8">nu zdorova</div>
+                    </div>
+                    -->
+                </div>
+                <form class="form-inline">
+                    <div class="form-group">
+                        <label class="sr-only" for="message-input">Сообщение</label>
+                        <input type="text" class="form-control" id="message-input" placeholder="Введите сообщение"/>
+                    </div>
+                    <input class="btn btn-default" type="button" onclick="sendMessage()" value="Отправить"/>
+                </form>
+            </div>
+            <div class="col-lg-2 col-md-2 col-xs-3">
+                <h4>Участники:</h4>
+                <div id="users-box">
+
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="footer">
+        <div class="container">
+            <div class="text-muted" id="footer-text">Tsibin Andrey. 2016</div>
+        </div>
+    </div>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
 </body>
 </html>

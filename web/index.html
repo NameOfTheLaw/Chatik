@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/style.css" rel="stylesheet">
+    <script src="js/app.js"></script>
+    <title>Chatik</title>
+</head>
+<body>
+    <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+        <div class="container">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <div class="navbar-brand" href="#">Chatik</div>
+            </div>
+            <div class="navbar-collapse collapse">
+                <form class="navbar-form navbar-right" role="form">
+                    <div class="form-group">
+                        <input type="text" id="reg_name" placeholder="Имя" class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <input type="password" id="reg_pass" placeholder="Пароль" class="form-control">
+                    </div>
+                    <button type="button" class="btn btn-success" onclick="reg()">Зарегистрироваться</button>
+                </form>
+            </div><!--/.navbar-collapse -->
+        </div>
+    </div>
+    <div class="container">
+        <form class="form-signin" id="auth_form" onsubmit="event.preventDefault();auth()">
+            <h2 class="form-signin-heading">Вход</h2>
+            <label for="name" class="sr-only">Имя</label>
+            <input type="text" name="name" id="name" class="form-control" placeholder="Имя" required="" autofocus="">
+            <label for="pass" class="sr-only">Пароль</label>
+            <input type="password" name="pass" id="pass" class="form-control" placeholder="Пароль" required="">
+            <button class="btn btn-lg btn-primary btn-block" type="submit">Войти</button>
+        </form>
+    </div>
+    <div id="footer">
+        <div class="container">
+            <div class="text-muted" id="footer-text">Tsibin Andrey. 2016</div>
+        </div>
+    </div>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+<script src="js/bootstrap.min.js"></script>
+</body>
+</html>
