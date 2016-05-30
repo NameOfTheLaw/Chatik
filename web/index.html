@@ -21,14 +21,14 @@
                 <div class="navbar-brand" href="#">Chatik</div>
             </div>
             <div class="navbar-collapse collapse">
-                <form class="navbar-form navbar-right" role="form">
+                <form class="navbar-form navbar-right" role="form" onsubmit="event.preventDefault();reg()">
                     <div class="form-group">
                         <input type="text" id="reg_name" placeholder="Имя" class="form-control">
                     </div>
                     <div class="form-group">
                         <input type="password" id="reg_pass" placeholder="Пароль" class="form-control">
                     </div>
-                    <button type="button" class="btn btn-success" onclick="reg()">Зарегистрироваться</button>
+                    <button type="submit" class="btn btn-success">Зарегистрироваться</button>
                 </form>
             </div><!--/.navbar-collapse -->
         </div>
@@ -43,12 +43,16 @@
             <button class="btn btn-lg btn-primary btn-block" type="submit">Войти</button>
         </form>
     </div>
+    <!--
     <div id="footer">
         <div class="container">
-            <div class="text-muted" id="footer-text">Tsibin Andrey. 2016</div>
+            <div class="text-muted" id="footer-text"></div>
+            <div class="text-muted">Tsibin Andrey. 2016</div>
         </div>
     </div>
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
-<script src="js/bootstrap.min.js"></script>
+    -->
+    <script src="js/jquery-1.12.4.min.js"></script>
+    <script src="js/app.js"></script>
+    <script src="js/bootstrap.min.js"></script>
 </body>
 </html>

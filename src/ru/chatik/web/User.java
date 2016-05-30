@@ -5,6 +5,7 @@ import org.json.simple.JSONObject;
 import javax.servlet.http.HttpSessionBindingEvent;
 import javax.servlet.http.HttpSessionBindingListener;
 import java.sql.Date;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -13,11 +14,10 @@ import java.util.Set;
  * Created by andrey on 22.05.2016.
  */
 public class User implements HttpSessionBindingListener {
-    public static final long AFK_TIME = 5000;
     private long id;
     private String name;
     private String pass;
-    private Date lastactivity;
+    private Timestamp lastactivity;
 
     public User(){};
 
@@ -45,14 +45,19 @@ public class User implements HttpSessionBindingListener {
         this.pass = pass;
     }
 
-    public Date getLastactivity() {
+    public Timestamp getLastactivity() {
         return lastactivity;
     }
 
-    public void setLastactivity(Date lastactivity) {
+    public void setLastactivity(Timestamp lastactivity) {
         this.lastactivity = lastactivity;
     }
 
+
+    /**
+     * Метод срабатывает при привязке этого объекта к сессии
+     * @param httpSessionBindingEvent
+     */
     @Override
     public void valueBound(HttpSessionBindingEvent httpSessionBindingEvent) {
         List<User> logins = (List<User>) httpSessionBindingEvent.getSession().getServletContext().getAttribute("users");
@@ -63,6 +68,10 @@ public class User implements HttpSessionBindingListener {
         logins.add(this);
     }
 
+    /**
+     * Метод срабатывает при отключении этого объекта от сессии
+     * @param httpSessionBindingEvent
+     */
     @Override
     public void valueUnbound(HttpSessionBindingEvent httpSessionBindingEvent) {
         List<User> logins = (List<User>) httpSessionBindingEvent.getSession().getServletContext().getAttribute("users");

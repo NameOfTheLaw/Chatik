@@ -1,7 +1,6 @@
 package ru.chatik.web.servlets;
 
 import org.json.simple.JSONObject;
-import ru.chatik.web.Message;
 import ru.chatik.web.User;
 
 import javax.servlet.http.HttpSession;
@@ -9,7 +8,6 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.sql.*;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -24,9 +22,6 @@ public class ChatServlet extends javax.servlet.http.HttpServlet {
         response.setContentType("application/json;charset=UTF-8");
         PrintWriter out = response.getWriter();
         JSONObject answer = new JSONObject();
-
-        HttpSession session = request.getSession();
-        session.setAttribute("authorization_pass",false);
 
         if (request.getParameter("action").equals("auth")) {
             if (request.getParameter("name") != null && !request.getParameter("name").equals("") && request.getParameter("pass") != null && !request.getParameter("pass").equals("")) {
@@ -47,7 +42,7 @@ public class ChatServlet extends javax.servlet.http.HttpServlet {
                         user.setId(rs.getLong("ID"));
                         user.setName(rs.getString("NAME"));
                         user.setPass(rs.getString("PASS"));
-                        user.setLastactivity(new Date(System.currentTimeMillis()));
+                        user.setLastactivity(new Timestamp(System.currentTimeMillis()));
                     } else {
                         //пользователь с таким именем не зарегистрирован
                         answer.put("auth","failed");
@@ -66,6 +61,7 @@ public class ChatServlet extends javax.servlet.http.HttpServlet {
 
                 if (user != null) {
                     //setting session to expiry in 1 min
+                    HttpSession session = request.getSession();
                     session.setMaxInactiveInterval(1 * 60);
                     session.setAttribute("authorization_pass", true);
                     session.setAttribute("user", user);
@@ -78,6 +74,11 @@ public class ChatServlet extends javax.servlet.http.HttpServlet {
                 answer.put("auth","failed");
                 answer.put("cause","bad_input");
             }
+        }
+
+        if (request.getParameter("action").equals("deauth")) {
+            HttpSession session = request.getSession();
+            session.invalidate();
         }
 
         if (request.getParameter("action").equals("reg")) {
@@ -144,22 +145,39 @@ public class ChatServlet extends javax.servlet.http.HttpServlet {
             HttpSession session = request.getSession();
             if ((boolean)session.getAttribute("authorization_pass")) {
                 User user = (User) session.getAttribute("user");
-                Date lastdate = user.getLastactivity();
+                Timestamp lastdate = user.getLastactivity();
+                Timestamp curdate = new Timestamp(System.currentTimeMillis());
                 SimpleDateFormat outputDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-                //outputDateFormat.format(lastdate);
 
                 Connection dbConnection = null;
+                //PreparedStatement statement = null;
                 Statement statement = null;
 
                 try {
                     dbConnection = connectToDB();
+                    /*
+                    statement = dbConnection.prepareStatement("SELECT me.ID \"ID\", us.NAME \"USER\", me.TEXT \"TEXT\" FROM CHATIK_MESSAGE me, CHATIK_USER us WHERE me.CHATIK_USER = us.ID AND CREATE_DATE >= ?");
+                    statement.setTimestamp(1, lastdate);
+                    ResultSet rs = statement.executeQuery();
+                    */
                     statement = dbConnection.createStatement();
-                    ResultSet rs = statement.executeQuery("SELECT * FROM CHATIK_MESSAGE WHERE CREATE_DATE BETWEEN TO_DATE('" + outputDateFormat.format(lastdate) + "','YYYY-MM-DD HH24:MI:SS') AND TO_DATE('" + outputDateFormat.format(new Date(System.currentTimeMillis())) + "','YYYY-MM-DD HH24:MI:SS')");
-                    user.setLastactivity(new Date(System.currentTimeMillis()));
+                    ResultSet rs = statement.executeQuery("SELECT me.ID \"ID\", us.NAME \"USER\", me.TEXT \"TEXT\" FROM CHATIK_MESSAGE me, CHATIK_USER us WHERE me.CHATIK_USER = us.ID AND CREATE_DATE >= TO_DATE('" + outputDateFormat.format(lastdate) + "','YYYY-MM-DD HH24:MI:SS')");
+                    user.setLastactivity(curdate);
 
                     while (rs.next()) {
-                        answer.put(rs.getString("CHATIK_USER"), rs.getString("TEXT"));
+                        JSONObject message = new JSONObject();
+                        message.put("user",rs.getString("USER"));
+                        message.put("text",rs.getString("TEXT"));
+                        answer.put(rs.getString("ID"), message);
                     }
+                    //TEST OUTPUT
+                    /*
+                    JSONObject message = new JSONObject();
+                    message.put("user","USER_NAME");
+                    message.put("text","MESSAGE_TEXT");
+                    answer.put(77, message);
+                    */
+
                 } catch (SQLException e) {
                     e.printStackTrace();
                 }
@@ -183,26 +201,29 @@ public class ChatServlet extends javax.servlet.http.HttpServlet {
             }
         }
 
-        if (request.getParameter("action").equals("sendmessage")) {
+        if (request.getParameter("action").equals("sendmessage") && request.getParameter("text") != null) {
             HttpSession session = request.getSession();
             if ((boolean)session.getAttribute("authorization_pass")) {
                 User user = (User) session.getAttribute("user");
                 SimpleDateFormat outputDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-                //outputDateFormat.format(lastdate);
+                Timestamp curdate = new Timestamp(System.currentTimeMillis());
 
                 Connection dbConnection = null;
                 Statement statement = null;
+                //PreparedStatement statement;
 
                 try {
                     dbConnection = connectToDB();
-                    statement = dbConnection.createStatement();
-                    String text = request.getParameter("text");
-                    if (text == null) {
-                        text = "";
-                    }
                     //отправляем сообщение
-                    statement.executeQuery("INSERT INTO CHATIK_MESSAGE (id,text,chatik_user,create_date) VALUES (chatik_message_seq.nextval,'"+text+"'," + user.getId() + ", TO_DATE('" + outputDateFormat.format(new Date(System.currentTimeMillis())) + "','YYYY-MM-DD HH24:MI:SS'))");
-                    user.setLastactivity(new Date(System.currentTimeMillis()));
+                    statement = dbConnection.createStatement();
+                    statement.executeQuery("INSERT INTO CHATIK_MESSAGE (id,text,chatik_user,create_date) VALUES (chatik_message_seq.nextval,'"+request.getParameter("text")+"'," + user.getId() + ", TO_DATE('" + outputDateFormat.format(new Date(System.currentTimeMillis())) + "','YYYY-MM-DD HH24:MI:SS'))");
+                    /*
+                    statement = dbConnection.prepareStatement("INSERT INTO CHATIK_MESSAGE (id,text,chatik_user,create_date) VALUES (chatik_message_seq.nextval,?,?,?)");
+                    statement.setString(1,request.getParameter("text"));
+                    statement.setInt(2,(int)user.getId());
+                    statement.setTimestamp(3,curdate);
+                    statement.executeUpdate();
+                    */
                 } catch (SQLException e) {
                     e.printStackTrace();
                 }
@@ -228,7 +249,7 @@ public class ChatServlet extends javax.servlet.http.HttpServlet {
             e.printStackTrace();
         }
         try {
-            dbConnection = DriverManager.getConnection(DB_CONNECTION, DB_USER,DB_PASSWORD);
+            dbConnection = DriverManager.getConnection(DB_CONNECTION, DB_USER, DB_PASSWORD);
             return dbConnection;
         } catch (SQLException e) {
             System.out.println(e.getMessage());
